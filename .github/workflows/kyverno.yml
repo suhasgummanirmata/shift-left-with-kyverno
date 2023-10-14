@@ -34,4 +34,4 @@ jobs:
 
       - name: Validate Manifests against Kyverno Policies
         run: |
-          kyverno apply .github/policies --resource ${{ env.changed_files }}
+          kyverno apply policies --resource ${{ env.changed_files }}
