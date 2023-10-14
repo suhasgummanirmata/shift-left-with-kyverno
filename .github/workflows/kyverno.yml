@@ -1,0 +1,37 @@
+name: Kyverno Policy Check
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  example:
+    runs-on: ubuntu-latest
+
+    permissions: {}
+
+    name: Install and Check Kyverno Policies
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Kyverno CLI
+        uses: kyverno/action-install-cli@v0.2.0
+        with:
+          release: 'v1.9.5'
+
+      - name: Check install
+        run: kyverno version
+
+      - name: Get list of changed files
+        id: get-changed-files
+        run: |
+          echo "changed_files=$(git diff --name-only HEAD^ HEAD)" >> $GITHUB_ENV
+
+      - name: Validate Manifests against Kyverno Policies
+        run: |
+          kyverno apply .github/policies --resource ${{ env.changed_files }}
