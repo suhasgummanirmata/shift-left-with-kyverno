@@ -30,8 +30,11 @@ jobs:
       - name: Get list of changed files
         id: get-changed-files
         run: |
-          echo "changed_files=$(git diff --name-only HEAD^ HEAD)" >> $GITHUB_ENV
+          changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.yml$\|\.yaml$')
+          echo "changed_files=$changed_files" >> $GITHUB_ENV
 
       - name: Validate Manifests against Kyverno Policies
         run: |
-          kyverno apply policies --resource ${{ env.changed_files }}
+          for file in $changed_files; do
+            kyverno apply .github/policies --resource $file
+          done
